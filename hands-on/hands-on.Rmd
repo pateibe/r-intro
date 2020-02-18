@@ -1,0 +1,27 @@
+---
+title: "Workshop Introduction to R"
+output:
+  bookdown::html_document2:
+    toc: yes
+    toc_float: true # for easier navigation
+    theme: flatly
+    code_folding: hide
+---
+
+# Packages
+
+```{r}
+library(tidyverse) # for making nice plots
+```
+
+# Import data
+
+```{r}
+df = read_csv('MMs.csv', col_types = cols(
+  Sample=col_factor(levels=NULL),
+  Farbe=col_factor(levels=NULL)
+    )
+  )
+head(df)
+```
+
