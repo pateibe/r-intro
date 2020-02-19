@@ -1,27 +1,229 @@
 ---
 title: "Workshop Introduction to R"
+subtitle: "Forschungskolloq vom 20.02.2020"
+author: "Patric Eichelberger - patric.eichelberger@bfh.ch"
 output:
-  bookdown::html_document2:
+  html_document:
     toc: yes
     toc_float: true # for easier navigation
     theme: flatly
     code_folding: hide
+  # bookdown::html_document2:
+  #   toc: yes
+  #   toc_float: true # for easier navigation
+  #   theme: flatly
+  #   code_folding: hide
 ---
 
-# Packages
+# Allgemeine Anmerkungen
+
+## Dieses Dokument
+
+Dieses Dokument ist ein sogenanntes *R Notebook* und verwendet einerseits [R Markdown](https://rmarkdown.rstudio.com) als Text-Formatierungssyntax in Kombination mit sogannten *Code Chunks*, welche ausführbaren R Code enthalten. Die beiden Begriffe enstanden im Zusammenhang mit [RStudio](https://rstudio.com), mit dem Ziel für Berichte, Text und Datenanalysen in 100% reproduzierbarer Form zu kombinieren. Wird der Bericht erzeugt, werden auch die Daten analysiert und die Resultate von den Berechnungen mit R in den Bericht eingefügt. Darüber hinaus besteht die Möglichkeit den Bericht mittels des Paketes [knitr](https://yihui.org/knitr/) in verschiedene Ausgabeformate wie html oder pdf zu konvertieren. Wir werden uns in diesem Workshop ausschliesslich mit der html-Variante beschäftigen.
+
+## R
+
+R ist im Gegensatz zu kommerziellen Softwarelösungen für statistische Berechnungen, wie z.B. SPSS oder STATA, als eine freie Programmiersprache zu bezeichnen, welche für statistische Berechnungen spezialisiert ist. SPSS und STATA bieten zwar auch Syntax-Varianten als Alternative zur graphischen Benutzeroberfläche, aber haben nur eingeschränkt typische Merkmale einer generellen Programmiersprache (Datentypen, Schleifen, Entscheidungsstrukturen, etc.) und sind an die kommerziellen Softwarepakete gebunden.
+
+R ist sehr mächtig aber kommt in der Basis relativ rudimentär daher. Als konkretes Beispiel sind hier die Visualisierungsmöglichkeiten zu nennen. R kann vieles, aber um wirklich gute und vor allem flexible Visualisierungsmöglichkeiten zu haben ist viel Programmieraufwand nötig. An diesem Punkt kommt der Charakter der freien Software und die grosse Community ins Spiel. Viele Leute standen schon vor den gleichen Problemen und entsprechend gibt es sehr gute Pakete die als freie Erweiterungen zur Verfügung stehen. Um beim Beispiel der Visualisierung zu bleiben, sei hier das Paket [ggplot](https://ggplot2.tidyverse.org/) genannt, welches wir im Folgenden auch verwenden werden. Rund um [RStudio](https://rstudio.com) enstanden viele solcher [Pakete](https://rstudio.com/products/rpackages/) für verschiedenste Anwendungen wie Visualisierung, Datenaufbereitung und -manipulation, Datenimport, etc. Darunter fällt eben auch das zu Beginn genannte [R Markdown](https://rmarkdown.rstudio.com). Eine Sammlung dieser nützlichen Pakete rund um RStudio stellt [tidyverse](https://www.tidyverse.org/) dar, welche wir in diesem Workshop verwenden werden. Dazu gibt es von RStudio viele nützliche [Cheatseets](https://rstudio.com/resources/cheatsheets/), welche eine gute Übersicht bieten und einem die Arbeit erleichtern.
+
+# Pakete laden
+
+Wenn RStudio gestartet wird stehen nur gewisse Basispakete zur Verfügung. Zusätzliche Pakete müssen explizit geladen werden damit diese in der laufenden R-Session verfügbar sind. Eine Übersicht über die aktuell geladenen Pakte liefert:
 
 ```{r}
-library(tidyverse) # for making nice plots
+(.packages())
 ```
 
-# Import data
+Zusätzliche Pakete werden geladen mit:
 
 ```{r}
-df = read_csv('MMs.csv', col_types = cols(
-  Sample=col_factor(levels=NULL),
-  Farbe=col_factor(levels=NULL)
+library(tidyverse) # Funktionen für moderne Datenmanipulation und Plotting
+```
+
+Wir überprüfen welche Pakete nun geladen sind:
+
+```{r}
+(.packages())
+```
+
+# Daten importieren
+
+Wir behandeln einen Datensatz welcher ebenfalls im Modul *Angewandte Statistik* im BSc Phyisotherapie gebraucht wird. Darin befinden sich von verschiedenen Jahrgängen diverse Messwerte, welche die Studierenden selbst erhoben haben. Wir konzentrieren uns im Folgenden auf die Variablen:
+
+- Geschlecht
+- Studienjahrgang
+- Huefte.INNEN.Flexion: Hüft-Innenrotation bei gebeugtem Hüftgelenk
+- Huefte.INNEN.Extension: Hüft-Innenrotation bei gestrecktem Hüftgelenk
+- Huefte.AUSSEN.Flexion: Hüft-Aussenrotation bei gebeugtem Hüftgelenk
+- Huefte.AUSSEN.Extension: Hüft-Aussenrotation bei gestrecktem Hüftgelenk
+
+In den meisten Fällen ist unser Forschungszweig wohl mit Daten in *rectangular* Form zu tun. Das heisst, tabellierte Merkmalsausprägungen mit Zeilen und Spalten, wobei eine Zelle einer bestimmten Beobachtung und Variablen einen Wert zuordnet. In unserem Fall beispielsweise ein Winkelwert für die Hüft-Innenroation in Flexion bei einer bestimmten Person. Die [tidyverse](https://www.tidyverse.org/) Kollektion stellt das Paket [readr](https://readr.tidyverse.org/) zur Verfügung um tabellierte Daten aus Textdateien zu lesen und zu schreiben. Es empfiehlt sich generell mit Textdateien zu arbeiten, da diese universell lesbar sind und nicht Drittanbieter Software wie z.B. Excel benötigen. Sollten dennoch Excel-Dateien gelesen werden müssen bietet [tidyverse](https://www.tidyverse.org/) das Paket [readxl](https://readxl.tidyverse.org/). Wir arbeiten im Folgenden mit einer kommaseparierten Textdatei, wobei die Spalten eben durch Kommas getrennt sind.
+
+Die Daten werden mit der Funktion `read_csv` eingelesen, wobei die Spalten `Geschlecht` und `Studienjahrgang` gleich also Faktorvariablen definiert werden. Wir weisen die importierten Daten der Variablen `df`zu, welche den Typ `tibble` hat. Ein Datentyp, der Daten verschiedener Skalenniveaus vereint und als Basis für alle weiteren Analysen dient. Mit dem Befehl `head()` können wir eine Vorschau ausgeben und mit `print()` alle Daten betrachten.
+
+## Hinweis Zuweisungsoperator
+
+Wollen wir einer Variablen einen Wert zuweisen, wird das in Programmiersprachen allgemein mittels Gleichheitszeichen gemacht `myvar = 3`. R hat dafür aber allgemein die Konvention `myvar <- 3`. Da sich der Autor diese Tutorials andere Prgrammiersprachen gewohnt ist, es weniger zu tippen gibt und in R beide Varianten funktionieren, wird das Gleichheitszeichen als Zuweisungsoperator verwendet.
+
+
+```{r}
+df = read_csv('Exerc_Part4_PHY_Daten.csv', col_types = cols(
+  Geschlecht=col_factor(),
+  Studienjahrgang=col_factor(levels=NULL)
     )
   )
-head(df)
+df$Geschlecht = recode(df$Geschlecht, "0"="m", "1"="f")
+head(df) # Vorschau ausgeben
+print(df) # Inhalt ausgeben
 ```
+
+## Anmerkung zu *tidy* Daten
+
+Im Bereich der Datenwissenschaften und damit auch in R, ist es üblich mit Daten im sogenannten *tidy* (aufgeräumt) Format zu arbeiten. Das heisst, wir haben pro Beobachtung eine Zeile und pro Variable eine Spalte. Das Format wird auch als *long-table* bezeichnet, im Gegensatz zum *wide-table* Ansatz, wie er zum Beispiel in SPSS verwendet wird. Mit Tidy-Daten zu arbeiten bringt nur Vorteile. Man hat einen zentralen Datensatz und muss nicht Zeit damit verschwenden fehleranfällig und von Hand Daten für eine spezifische Analyse zu tabellieren, wie das zum Beispiel für SPSS der Fall ist. SPSS tickt nach dem Schema *eine Zeile pro Person* und Variblen müssen dann enstprechend codert werden. Im vorliegenden Datensatz sind beispielsweise die Variablen `SprunggelenkM1` und `SprunggelenkM2` nicht *tidy*. Die Messwiederholung (M1, M2) ist eine Gruppierungsvariable und sollte nicht im Variablennamen stehen, wie es für SPSS zwingend ist. Wollen wir die beiden *aufräumen* können wir das einfach mit der Funktion `pivot_longer()` aus dem [tidyr](https://tidyr.tidyverse.org/) Paket tun:
+
+```{r}
+tidydf = df %>%
+  pivot_longer(cols=starts_with("Sprunggelenk"),names_to = "Rep", values_to = "Sprunggelenk", names_prefix = "Sprunggelenk")
+head(tidydf)
+```
+
+Der Datensatz ist jetz nicht mehr korrekt, da sich die Gruppierung in *M1* und *M2* nur auf die Messung am Sprunggelenk bezieht und nicht auf die Messungen an der Hüfte. Dies kommt daher, dass die Messungen die Beantworung unterschiedlicher Fragestellungen zum Ziel hatten. Nämlich einerseits den Einfluss des Faktors Gelenkposition auf die Hüft-Innen- und Aussenrotation und anderseit die Wiederholbarkeit einer Messung am Sprunggelenk. Konsequenterweise müsste man den Datensatz trennen wenn man ihn korrekt in die *tidy* Form bringen möchte. Das einfache Beispiel zeigt wie wichtig es ist sich Gedanken über die Datenstrukturierung im Zusammenhang den vorliegenden Fragestellungen zu machen umd bei der Analyse effizient vorgehen zu können.
+
+Detailliert betrachtet liegen die Daten auch bezüglich der Hüftmessungen noch nicht konsequent in *tidy* Form vor. Denn die tatsächlich gemessene Variable ist immer ein Winkel. Die Attribute in den Variablennamen *Hüfte*, *INNEN/AUSSEN* und *Flexion/Extension* sind eigentlich Gruppierungsvariablen die beschreiben an welchem Gelenk, in welcher Richtung und in welcher Position gemessen wurde und nach denen man nochmals trennen kann. Doch dazu kommen wir später.
+
+Wollten wir etwas ins Wide-Table Format bringen, für den Fall, dass doch noch jemand in SPSS hantieren möchte oder wir sonst Gründe dazu haben, kann mit `pivot_wider` das Gegenteil gemacht werden:
+
+```{r}
+widedf = tidydf %>% pivot_wider(names_from=Rep,values_from=Sprunggelenk,names_prefix="Sprunggelenk")
+head(widedf)
+```
+
+# Beschreibende Statistik
+
+Das in der [tidyverse](https://www.tidyverse.org/) Kollektion enthalte Paket [dplyr](https://dplyr.tidyverse.org/) bietet sehr viele Möglichkeiten für die Datenmanipulation. Darunter verstehen wir zum Beispiel:
+
+- Neue Variablen aus bestehenden Variablen berechnen. Das heisst, zum Beispiel einen Body Mass Index aus Körpergewicht und -grösse zu berechnen. Funktion `mutate()`.
+- Bestimmte Variablen (Spalten) auswählen um damit weiter zu arbeiten. Funktion `select()`.
+- Bestimmte Beobachtungen (Zeilen) auszuwählen. Das ist praktisch um aus dem Gesamtdatensatz Subsets zu extrahieren. Also zum Beispiel die Männer oder die Frauen. Funktion `filter()`.
+- Mehrere Werte zu redzieren. Also zum Beispiel einen Mittelwert berechnen. Funktion `summarise()`.
+
+In einem ersten Schritt benötigen wir die `summarise()` Funktion um nach Subgruppen Summary Statistiken zu berechnen. Wir wollen beispielsweise wissen wie Mittelwert, Median, Standardabweichung, Interquartilsrange, Minimum und Maximum für die verschiedenen Variablen getrennt nach Geschlecht sind.
+
+## Mit Auflistung der Variablen
+
+Wir können die Variablen, für die wir Summary Statistiken berechnen wollen, explizit vorgeben. Hier mal für `Huefte_INNEN_Extension` und `Huefte_AUSSEN_Flexion`.
+
+```{r}
+df %>%
+  drop_na(Geschlecht) %>% # Zeilen mit nicht bekanntem Geschlecht entfernen
+  group_by(Geschlecht) %>% # Gruppieren nach Geschlecht
+  summarise_at(vars(Huefte.INNEN.Extension,Huefte.AUSSEN.Flexion),funs(mean,sd,median,min,max,IQR), na.rm=T) %>%
+  gather(key="key",value="value",-Geschlecht) %>% # Make things tidy
+  separate(key, into=c("measurement","statistic"),sep="_") # Separate columns
+```
+
+## Für alle nummerischen Variablen
+
+Wenn wir viele Variablen haben ist es mühsam alle explizit nennen zu müssen um Summary Statistiken berechnen zu können. Wir können auch einfach sagen R solle dies für alle numerischen Variablen tun in wir `summarise_if()` verwenden und mit `is.numeric` die entsprechende Kondition setzen:
+
+```{r}
+statdf = df %>%
+  drop_na(Geschlecht) %>% # Zeilen mit nicht bekanntem Geschlecht entfernen
+  group_by(Geschlecht) %>% # Gruppieren nach Geschlecht
+  summarise_if(is.numeric,funs(mean,sd,median,min,max,IQR), na.rm=T) %>%
+  gather(key="key",value="value",-Geschlecht) %>% # Make things tidy
+  separate(key, into=c("measurement","statistic"),sep="_") # Separate columns
+print(statdf)
+```
+
+## Export
+
+In aller Regel wollen wir später für eine Publikation die deskriptiven Statistiken tabellarisch darstellen. Dazu ist es hilfreich die berechneten Werte in einer Textdatei abzuspeichern. Dazu stellt das [readr](https://readr.tidyverse.org/) Paket die Funktionen `write_csv()` und `write_csv2` zur Verfügung. `write_csv2()` unterscheidet sich von `write_csv()` indem es für die Spaltentrennung das Semikolon anstatt des Komma verwendet. Das ist für jene Fälle wo das Komma als Dezimaltrennzeichen verwenet wird und das wiederum ist von den Einstellungen des jeweiligen Betriebssystems abhängig.
+
+```{r}
+write_csv(statdf,"descrStat.csv")
+write_csv2(statdf,"descrStat2.csv")
+```
+
+## Visualisierung
+
+Meistens sagen Grafiken mehr als Zahlen und dafür stellt das Paket [ggplot](https://ggplot2.tidyverse.org/) extrem starke Werkzeuge bereit, die es ermöglichlen mit sehr wenig Aufwand publikationsfertige Visualisierungen zu erzeugen.
+
+Wir möchten nun also zum Bespiel für alle Variablen, wiederum getrennt nach Geschlecht, Boxplots zeichnen. Damit das in der Art und Weise von *ggplot* geht brauchen wir den Datensatz nun konsequent im *tidy* Format. Wir haben vorhin gesehen, dass wir den Datensatz nach den Hüft- und Sprunggelenkmessungen trennen müssen damit dies geht und zudem die Attribute *Hüfte*, *INNEN/AUSSEN* und *Flexion/Extension* in den Variablennamen als Gruppierungsvariablen behandelt werden müssen.
+
+Wir splitten den Datensatz zuerst auf in `hipdf` für die Hüfte und `ankledf` für die Sprunggelenkmessungen:
+
+```{r}
+hipdf = df %>% select(-c("SprunggelenkM1","SprunggelenkM2"))
+ankledf = df %>% select(-c("Huefte.INNEN.Extension","Huefte.INNEN.Flexion","Huefte.AUSSEN.Extension","Huefte.AUSSEN.Flexion"))
+```
+
+Nun bringen wir die Hüftmessungen noch konsequent ins *tidy* Format:
+
+```{r}
+thipdf = hipdf %>%
+  pivot_longer(cols=starts_with("Huefte"),names_to = "Condition", values_to = "Winkel") %>%
+  separate(Condition,into = c("Gelenk","Richtung","Stellung"),sep = "[.]")
+print(thipdf)
+```
+
+Nun können wir die Funktionaliäten von *ggplot* voll ausschöpfen:
+
+```{r}
+thipdf %>% 
+  drop_na(Geschlecht) %>% # Zeilen mit nicht bekanntem Geschlecht entfernen
+  ggplot(aes(x=Geschlecht,y=Winkel)) + # Vorgaben was auf x- und y-Achse geplottet werden soll
+  geom_boxplot() + # Hinzufügen des Boxplots
+  geom_dotplot(binaxis = 'y', stackdir = 'center', position = 'dodge') + # Hinzfügen der Datenpunkte
+  stat_summary(geom = "point", fun.y = "mean", col = "red", size = 3) + # Mittelwert
+  facet_grid(rows = vars(Richtung), cols = vars(Stellung)) # Gruppieren
+```
+
+# Schliessende Statistik
+
+
+## Paired samples: Vergleich Innenrotation Flexion vs. Extension 
+
+Um zu entscheiden welcher statistische angewendet werden darf müssen wir nochmals einen Blick auf die Stichprobengrössen werfen. Zuerst wählen wir und die Daten aus unserem Datensatz aus für die wir uns jetzt interessieren:
+
+```{r}
+analysisdf = thipdf %>%
+  filter(Richtung=="INNEN" & Stellung=="Flexion")
+print(analysisdf)
+```
+
+Jetz schauen wir uns mal die Stichprobengrössen an:
+
+```{r}
+analysisdf %>%
+  group_by(Geschlecht) %>%
+  count()
+```
+
+Wie wir sehen gibt es noch 30 Zeilen ohne definiertes Geschlecht. Diese löschen wir also noch raus:
+
+```{r}
+analysisdf = analysisdf %>%
+  drop_na(Geschlecht)
+```
+
+Nun haben wir nur noch Zeilen mit definiertem Geschlecht. Nun kann es aber noch sein, dass in einer Zeile mit definiertem Geschlecht Winkelmessungen fehlen. Wir überprüfen das ebenfalls:
+
+```{r}
+analysisdf %>% 
+  group_by(Geschlecht) %>%
+  summarise(non_na_count = sum(!is.na(Winkel)),
+            na_count = sum(is.na(Winkel)))
+```
+
+Bei den Frauen fallen nochmals drei Werte raus. Wir haben also Werte von 23 Männern und 68 Frauen. Bei diesen Stichprobenumfängen sollten wir nicht von Normalverteilung ausgehen sollten uns aber auch nicht unbedingt auf einen Test auf Normalverteilung verlassen weil bei den Männern weniger als 30 Werte vorhanden sind. Beispielhalber zeigen wir aber trotzdem wie wir uns das Histogramm und den QQ-Plot anschauen und wie wir den Shapiro-Wilk Test für die Prüfung der Normalverteilung anwenden.
+
+```{r}
+ggplot(analysisdf, aes(x=Winkel)) +
+  geom_histogram()
+```
+
+
+## Two samples: Vergleich Innenrotation in Flexion zwischen Männern und Frauen
 
