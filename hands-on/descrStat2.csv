@@ -1,0 +1,73 @@
+Geschlecht;measurement;statistic;value
+m;SprunggelenkM1;mean;44,260870
+f;SprunggelenkM1;mean;51,823529
+m;SprunggelenkM2;mean;43,521739
+f;SprunggelenkM2;mean;51,544118
+m;Huefte.INNEN.Flexion;mean;27,565217
+f;Huefte.INNEN.Flexion;mean;37,426471
+m;Huefte.AUSSEN.Flexion;mean;42,043478
+f;Huefte.AUSSEN.Flexion;mean;42,220588
+m;Huefte.INNEN.Extension;mean;35,347826
+f;Huefte.INNEN.Extension;mean;46,882353
+m;Huefte.AUSSEN.Extension;mean;40,956522
+f;Huefte.AUSSEN.Extension;mean;42,000000
+m;SprunggelenkM1;sd;19,098352
+f;SprunggelenkM1;sd;19,332859
+m;SprunggelenkM2;sd;19,607210
+f;SprunggelenkM2;sd;19,653289
+m;Huefte.INNEN.Flexion;sd;11,248540
+f;Huefte.INNEN.Flexion;sd;11,718484
+m;Huefte.AUSSEN.Flexion;sd;13,309184
+f;Huefte.AUSSEN.Flexion;sd; 9,859983
+m;Huefte.INNEN.Extension;sd;10,589912
+f;Huefte.INNEN.Extension;sd;11,416837
+m;Huefte.AUSSEN.Extension;sd; 8,519914
+f;Huefte.AUSSEN.Extension;sd; 9,971601
+m;SprunggelenkM1;median;50,000000
+f;SprunggelenkM1;median;50,000000
+m;SprunggelenkM2;median;50,000000
+f;SprunggelenkM2;median;50,000000
+m;Huefte.INNEN.Flexion;median;28,000000
+f;Huefte.INNEN.Flexion;median;38,000000
+m;Huefte.AUSSEN.Flexion;median;40,000000
+f;Huefte.AUSSEN.Flexion;median;40,000000
+m;Huefte.INNEN.Extension;median;35,000000
+f;Huefte.INNEN.Extension;median;49,000000
+m;Huefte.AUSSEN.Extension;median;45,000000
+f;Huefte.AUSSEN.Extension;median;40,000000
+m;SprunggelenkM1;min; 8,000000
+f;SprunggelenkM1;min; 5,000000
+m;SprunggelenkM2;min;10,000000
+f;SprunggelenkM2;min; 3,000000
+m;Huefte.INNEN.Flexion;min;10,000000
+f;Huefte.INNEN.Flexion;min;10,000000
+m;Huefte.AUSSEN.Flexion;min;24,000000
+f;Huefte.AUSSEN.Flexion;min;15,000000
+m;Huefte.INNEN.Extension;min;13,000000
+f;Huefte.INNEN.Extension;min;25,000000
+m;Huefte.AUSSEN.Extension;min;25,000000
+f;Huefte.AUSSEN.Extension;min;15,000000
+m;SprunggelenkM1;max;80,000000
+f;SprunggelenkM1;max;95,000000
+m;SprunggelenkM2;max;75,000000
+f;SprunggelenkM2;max;95,000000
+m;Huefte.INNEN.Flexion;max;55,000000
+f;Huefte.INNEN.Flexion;max;66,000000
+m;Huefte.AUSSEN.Flexion;max;70,000000
+f;Huefte.AUSSEN.Flexion;max;62,000000
+m;Huefte.INNEN.Extension;max;55,000000
+f;Huefte.INNEN.Extension;max;72,000000
+m;Huefte.AUSSEN.Extension;max;55,000000
+f;Huefte.AUSSEN.Extension;max;75,000000
+m;SprunggelenkM1;IQR;21,000000
+f;SprunggelenkM1;IQR;15,750000
+m;SprunggelenkM2;IQR;27,500000
+f;SprunggelenkM2;IQR;21,000000
+m;Huefte.INNEN.Flexion;IQR;15,000000
+f;Huefte.INNEN.Flexion;IQR;15,000000
+m;Huefte.AUSSEN.Flexion;IQR;20,000000
+f;Huefte.AUSSEN.Flexion;IQR;10,500000
+m;Huefte.INNEN.Extension;IQR;11,000000
+f;Huefte.INNEN.Extension;IQR;16,250000
+m;Huefte.AUSSEN.Extension;IQR; 9,500000
+f;Huefte.AUSSEN.Extension;IQR;11,500000
