@@ -189,7 +189,7 @@ Um zu entscheiden welcher statistische angewendet werden darf müssen wir nochma
 
 ```{r}
 analysisdf = thipdf %>%
-  filter(Richtung=="INNEN" & Stellung=="Flexion")
+  filter(Richtung=="INNEN" & Stellung=="Flexion" | Richtung=="INNEN" & Stellung=="Extension")
 print(analysisdf)
 ```
 
@@ -197,7 +197,7 @@ Jetz schauen wir uns mal die Stichprobengrössen an:
 
 ```{r}
 analysisdf %>%
-  group_by(Geschlecht) %>%
+  group_by(Geschlecht,Stellung) %>%
   count()
 ```
 
@@ -212,16 +212,38 @@ Nun haben wir nur noch Zeilen mit definiertem Geschlecht. Nun kann es aber noch 
 
 ```{r}
 analysisdf %>% 
-  group_by(Geschlecht) %>%
+  group_by(Geschlecht,Stellung) %>%
   summarise(non_na_count = sum(!is.na(Winkel)),
             na_count = sum(is.na(Winkel)))
 ```
 
-Bei den Frauen fallen nochmals drei Werte raus. Wir haben also Werte von 23 Männern und 68 Frauen. Bei diesen Stichprobenumfängen sollten wir nicht von Normalverteilung ausgehen sollten uns aber auch nicht unbedingt auf einen Test auf Normalverteilung verlassen weil bei den Männern weniger als 30 Werte vorhanden sind. Beispielhalber zeigen wir aber trotzdem wie wir uns das Histogramm und den QQ-Plot anschauen und wie wir den Shapiro-Wilk Test für die Prüfung der Normalverteilung anwenden.
+Bei den Frauen fallen nochmals drei Werte raus, welche wir vor der weiteren Analyse entfernen:
 
 ```{r}
-ggplot(analysisdf, aes(x=Winkel)) +
-  geom_histogram()
+analysisdf = analysisdf %>% drop_na()
+analysisdf %>% 
+  group_by(Geschlecht,Stellung) %>%
+  summarise(non_na_count = sum(!is.na(Winkel)),
+            na_count = sum(is.na(Winkel)))
+```
+
+Wir haben also Werte von 23 Männern und 68 Frauen. Bei diesen Stichprobenumfängen sollten wir nicht von Normalverteilung ausgehen sollten uns aber auch nicht unbedingt auf einen Test auf Normalverteilung verlassen weil bei den Männern weniger als 30 Werte vorhanden sind. Beispielhalber zeigen wir aber trotzdem wie wir uns das Histogramm und den QQ-Plot anschauen und wie wir den Shapiro-Wilk Test für die Prüfung der Normalverteilung anwenden.
+
+```{r}
+ggplot(analysisdf, aes(x=Winkel, color=Geschlecht, fill=Geschlecht)) +
+  geom_histogram() +
+  facet_wrap(vars(Stellung,Geschlecht))
+```
+
+```{r}
+ggplot(analysisdf, aes(sample=Winkel)) +
+  geom_qq() +
+  geom_qq_line() +
+  facet_wrap(vars(Stellung,Geschlecht))
+```
+
+```{r}
+
 ```
 
 
