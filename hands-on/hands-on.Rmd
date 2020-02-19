@@ -8,11 +8,6 @@ output:
     toc_float: true # for easier navigation
     theme: flatly
     code_folding: hide
-  # bookdown::html_document2:
-  #   toc: yes
-  #   toc_float: true # for easier navigation
-  #   theme: flatly
-  #   code_folding: hide
 ---
 
 # Allgemeine Anmerkungen
@@ -39,6 +34,8 @@ Zusätzliche Pakete werden geladen mit:
 
 ```{r}
 library(tidyverse) # Funktionen für moderne Datenmanipulation und Plotting
+library(broom) # Statistische Analyseobjekte in Tidy Tibbles konvertieren
+library(mosaic) # Praktsiche Funktion für deskriptive Statistik
 ```
 
 Wir überprüfen welche Pakete nun geladen sind:
@@ -118,7 +115,7 @@ Wir können die Variablen, für die wir Summary Statistiken berechnen wollen, ex
 df %>%
   drop_na(Geschlecht) %>% # Zeilen mit nicht bekanntem Geschlecht entfernen
   group_by(Geschlecht) %>% # Gruppieren nach Geschlecht
-  summarise_at(vars(Huefte.INNEN.Extension,Huefte.AUSSEN.Flexion),funs(mean,sd,median,min,max,IQR), na.rm=T) %>%
+  summarise_at(vars(Huefte.INNEN.Extension,Huefte.AUSSEN.Flexion),tibble::lst(mean,sd,median,min,max,IQR), na.rm=T) %>%
   gather(key="key",value="value",-Geschlecht) %>% # Make things tidy
   separate(key, into=c("measurement","statistic"),sep="_") # Separate columns
 ```
@@ -145,6 +142,20 @@ In aller Regel wollen wir später für eine Publikation die deskriptiven Statist
 write_csv(statdf,"descrStat.csv")
 write_csv2(statdf,"descrStat2.csv")
 ```
+
+## Alternative für die deskriptive Statistik
+
+Es muss nicht zwingend nach dem tidyverse Konzept vorgegangen werden. Das Paket `mosaic` bietet mit der Funktion `favstats()` ebenfalls eine gute Variante um gruppierte Summary-Statistiken zu berechnen, wobei hier nicht mit einem Befehl mehrere Variablen behandelt werden können.
+
+```{r}
+favstats(df$Huefte.AUSSEN.Extension ~ df$Geschlecht)
+favstats(df$Huefte.AUSSEN.Flexion ~ df$Geschlecht)
+favstats(df$Huefte.INNEN.Extension ~ df$Geschlecht)
+favstats(df$Huefte.INNEN.Flexion ~ df$Geschlecht)
+```
+
+
+
 
 ## Visualisierung
 
@@ -182,7 +193,6 @@ thipdf %>%
 
 # Schliessende Statistik
 
-
 ## Paired samples: Vergleich Innenrotation Flexion vs. Extension 
 
 Um zu entscheiden welcher statistische angewendet werden darf müssen wir nochmals einen Blick auf die Stichprobengrössen werfen. Zuerst wählen wir und die Daten aus unserem Datensatz aus für die wir uns jetzt interessieren:
@@ -198,7 +208,7 @@ Jetz schauen wir uns mal die Stichprobengrössen an:
 ```{r}
 analysisdf %>%
   group_by(Geschlecht,Stellung) %>%
-  count()
+  count() %>% print()
 ```
 
 Wie wir sehen gibt es noch 30 Zeilen ohne definiertes Geschlecht. Diese löschen wir also noch raus:
@@ -206,6 +216,7 @@ Wie wir sehen gibt es noch 30 Zeilen ohne definiertes Geschlecht. Diese löschen
 ```{r}
 analysisdf = analysisdf %>%
   drop_na(Geschlecht)
+print(analysisdf)
 ```
 
 Nun haben wir nur noch Zeilen mit definiertem Geschlecht. Nun kann es aber noch sein, dass in einer Zeile mit definiertem Geschlecht Winkelmessungen fehlen. Wir überprüfen das ebenfalls:
@@ -229,11 +240,15 @@ analysisdf %>%
 
 Wir haben also Werte von 23 Männern und 68 Frauen. Bei diesen Stichprobenumfängen sollten wir nicht von Normalverteilung ausgehen sollten uns aber auch nicht unbedingt auf einen Test auf Normalverteilung verlassen weil bei den Männern weniger als 30 Werte vorhanden sind. Beispielhalber zeigen wir aber trotzdem wie wir uns das Histogramm und den QQ-Plot anschauen und wie wir den Shapiro-Wilk Test für die Prüfung der Normalverteilung anwenden.
 
+## Histogramm
+
 ```{r}
 ggplot(analysisdf, aes(x=Winkel, color=Geschlecht, fill=Geschlecht)) +
   geom_histogram() +
   facet_wrap(vars(Stellung,Geschlecht))
 ```
+
+## QQ-Plot
 
 ```{r}
 ggplot(analysisdf, aes(sample=Winkel)) +
@@ -242,10 +257,43 @@ ggplot(analysisdf, aes(sample=Winkel)) +
   facet_wrap(vars(Stellung,Geschlecht))
 ```
 
-```{r}
+## Shapiro Wilk Test
 
+Wir demonstrieren zuerst den konservativen Weg:
+
+```{r}
+tmpdf = filter(analysisdf,Geschlecht=="m" & Stellung=="Flexion") # Subset extrahieren
+print(tmpdf)
+shapiro.test(tmpdf$Winkel) # Shapiro Wilk Test auf den Winkel anwenden
 ```
 
+Nun ist es etwas mühsam diese Code Zeilen zu wiederholen. Insgesamt müssten wird das vier mal tun. Nämlich für alle Kombinationen für m/f - Flexion/Extension. Auch für diesen Fall stellt die [tidyverse](https://www.tidyverse.org/) Kollektion entsprechende Werkzeuge bereit um die gleich Operation auf mehrere Gruppen anzuwenden.
 
-## Two samples: Vergleich Innenrotation in Flexion zwischen Männern und Frauen
+```{r}
+analysisdf %>%
+  group_by(Geschlecht,Stellung) %>%
+  do(tidy(shapiro.test(.$Winkel)))
+```
 
+Wir stellen für keine der Subgruppen signifikante Abweichung von der Normalverteilung ist. Wir müssen natürlich im Kopf behalten, dass die Aussage für die Männer zweifelhaft ist, weil wir nur eine Stichprobengrösse von 23 haben. Sicherheitshalber sollten wir in diesem Fall nicht-parametrisch testen. Zu Demonstrationszwecken testen wir nun parametrisch und nicht-parametrisch.
+
+Wir können es wiederum auf den konservativen Weg tun:
+
+```{r}
+adf = filter(analysisdf,Geschlecht=="m" & Stellung=="Flexion") # Subset A extrahieren
+bdf = filter(analysisdf,Geschlecht=="m" & Stellung=="Extension") # Subset B extrahieren
+print(tmpdf)
+t.test(adf$Winkel,bdf$Winkel,paired = T) # Shapiro Wilk Test auf den Winkel anwenden
+```
+
+Für den Vergleich bei den Frauen müssten wir ja den obigen Code wiederholen. Das ist ineffizient und wir können ähnlich vorhin beim Normalitätstest vorgehen:
+
+```{r}
+analysisdf %>%
+  group_by(Geschlecht) %>%
+  do(tidy(t.test(Winkel ~ Stellung, data=., paired=T)))
+```
+
+## Two samples: Vergleich Innenrotation in Flexion und Extension zwischen Männern und Frauen
+
+Die Impelemtierung dieses statistischen Vergleiches ist nun den Teilnehmenden überlassen.
