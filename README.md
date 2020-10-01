@@ -38,3 +38,4 @@ Die gesamten Unterlagen dieses Workshops sind auf dem Github Repository [https:/
 - A. Field, J. Miles und Z. Field, Discovering Statistics using R. London: SAGE Publications Ltd., 2012.
 - I H. Wickham und G. Grolemund, R for Data Science. O’Reilly UK Ltd., 2017. (freies E-Book auf https://r4ds.had.co.nz/)
 - I DJ Navarro und DR Foxcroft, learning statistics with jamovi: a tutorial for psychology students and other beginners. Version 0.70). DOI: 10.24384/hgc3-7p15. (E-Book).
+- YaRrr! The Pirate's Guide to R https://bookdown.org/ndphillips/YaRrr/
